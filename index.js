@@ -4,6 +4,7 @@ const cors = require("cors");
 const app = express();
 require("dotenv").config();
 const port = process.env.PORT || 5000;
+const { ObjectId } = require('mongodb');
 
 //  MONGODB DATABASE USER PASSWORD
 // console.log(process.env.DB_USER);
@@ -24,6 +25,94 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+    const assignmentCollection = client.db('assignDB').collection('assignments')
+
+    app.get('/assignments', async(req, res) => {
+        const result = await assignmentCollection.find().toArray();
+         res.send(result);
+    })
+
+    // http://localhost:5000/assignments?level=easy
+
+    // http://localhost:5000/assignments?page=1&limit=6
+
+    // app.get('/assignments', async(req, res) => {
+
+    //     let queryObj = {}
+
+    //     const level = req.query.level
+
+    //     const page = Number(req.query.page);
+    //     const limit = Number(req.query.page);
+    //     const skip = (page - 1)* limit
+
+
+    //     if(level){
+    //         queryObj.level = level
+    //     }
+
+    //     const result = await assignmentCollection.find(queryObj).skip(skip).limit(limit).toArray();
+
+    //     const total = await assignmentCollection.countDocuments()
+    //      res.send({
+    //         total,
+    //         result
+    //      });
+    // })
+
+  
+      
+      
+
+ 
+
+    app.get('/assignments/:id', async (req, res) => {
+        const id = req.params.id;
+        console.log(id);
+        const query = {
+          _id: new ObjectId(id),
+        };
+        const result = await assignmentCollection.findOne(query);
+        console.log(result);
+        res.send(result);
+      });
+
+    app.post('/assignments', async(req, res) => {
+        const assignment = req.body;
+        console.log(assignment);
+        const result = await assignmentCollection.insertOne(assignment)
+        console.log(result);
+        res.send(result)
+    })
+
+    app.delete("/assignments/:id", async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await assignmentCollection.deleteOne(query);
+        res.send(result);
+      });
+
+    app.put("/assignments/:id", async (req, res) => {
+        const id = req.params.id;
+        const data = req.body;
+        console.log("id", id, data);
+        const filter = { _id: new ObjectId(id) };
+        const options = { upsert: true };
+        const updatedUSer = {
+          $set: {
+            title:data.title, level:data.level, marks:data.marks, image:data.image, date:data.date, description:data.description
+          },
+        };
+        const result = await assignmentCollection.updateOne(
+          filter,
+          updatedUSer,
+          options
+        );
+        res.send(result);
+      });
+
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
