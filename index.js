@@ -49,7 +49,7 @@ async function run() {
           _id: new ObjectId(id),
         };
         const result = await quizCollection.findOne(query);
-        console.log(result);
+        
         res.send(result);
       });
 
