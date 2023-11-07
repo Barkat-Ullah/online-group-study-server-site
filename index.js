@@ -41,6 +41,7 @@ async function run() {
         res.send(result)
     })
 
+    
     app.get('/quiz/:id', async (req, res) => {
         const id = req.params.id;
         console.log(id);
@@ -51,6 +52,28 @@ async function run() {
         console.log(result);
         res.send(result);
       });
+
+    app.patch("/quiz/:id", async (req, res) => {
+        const id = req.params.id;
+        const data = req.body;
+        console.log("id", id, data);
+        const filter = { _id: new ObjectId(id) };
+        const options = { upsert: true };
+        const updatedUSer = {
+          $set: {
+            marks:data.marks
+            // title:data.title, level:data.level, marks:data.marks, image:data.image, date:data.date, description:data.description
+          },
+        };
+        const result = await quizCollection.updateOne(
+          filter,
+          updatedUSer,
+          options
+        );
+        res.send(result);
+      });
+
+
 
 
     app.get('/assignments', async(req, res) => {
