@@ -26,6 +26,32 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     const assignmentCollection = client.db('assignDB').collection('assignments')
+    const quizCollection = client.db('assignDB').collection('quiz')
+
+
+    app.get('/quiz', async(req, res) => {
+        const result = await quizCollection.find().toArray();
+         res.send(result);
+    })
+
+    app.post('/quiz', async(req, res) => {
+        const quiz = req.body;
+        console.log(quiz);
+        const result = await quizCollection.insertOne(quiz)
+        res.send(result)
+    })
+
+    app.get('/quiz/:id', async (req, res) => {
+        const id = req.params.id;
+        console.log(id);
+        const query = {
+          _id: new ObjectId(id),
+        };
+        const result = await quizCollection.findOne(query);
+        console.log(result);
+        res.send(result);
+      });
+
 
     app.get('/assignments', async(req, res) => {
         const result = await assignmentCollection.find().toArray();
@@ -60,11 +86,6 @@ async function run() {
     //      });
     // })
 
-  
-      
-      
-
- 
 
     app.get('/assignments/:id', async (req, res) => {
         const id = req.params.id;
